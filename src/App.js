@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useState } from "react";
+import React, { useRef, useCallback, useState, useEffect } from "react";
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -11,7 +11,6 @@ import {
   BackgroundVariant,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-
 import "./index.css";
 import SideBar from "./Components/Sidebar";
 import Header from "./Components/Header";
@@ -27,42 +26,14 @@ import {
 } from "react-icons/bi";
 import { GiResize } from "react-icons/gi";
 
-const initialNodes = [
-  // {
-  //   id: "1",
-  //   type: "input",
-  //   data: { label: "input node" },
-  //   position: { x: 250, y: 5 },
-  // },
-];
-
+const initialNodes = [];
 const blocks = [
-  {
-    type: "image",
-    label: "Add Image",
-    icon: <BiImageAdd size={24} />,
-  },
-  {
-    type: "contrast",
-    label: "Change Contrast",
-    icon: <BiAdjust size={24} />,
-  },
-  {
-    type: "result",
-    label: "Image Output",
-    icon: <BiImageAdd size={24} />,
-  },
+  { type: "image", label: "Add Image", icon: <BiImageAdd size={24} /> },
+  { type: "contrast", label: "Change Contrast", icon: <BiAdjust size={24} /> },
+  { type: "result", label: "Image Output", icon: <BiImageAdd size={24} /> },
   { type: "crop", label: "Crop Image", icon: <BiCrop size={24} /> },
-  {
-    type: "brightness",
-    label: "Change Brightness",
-    icon: <BiSun size={24} />,
-  },
-  {
-    type: "size",
-    label: "Change Size",
-    icon: <GiResize size={24} />,
-  },
+  { type: "brightness", label: "Change Brightness", icon: <BiSun size={24} /> },
+  { type: "size", label: "Change Size", icon: <GiResize size={24} /> },
   {
     type: "background",
     label: "Add Color Background",
@@ -75,7 +46,7 @@ const blocks = [
   },
 ];
 
-let id = 1; // Start from 1 since initial node is already present
+let id = 1;
 const getId = () => `dndnode_${id++}`;
 
 const DnDFlow = () => {
@@ -84,9 +55,25 @@ const DnDFlow = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const { screenToFlowPosition } = useReactFlow();
   const [uploadedImages, setUploadedImages] = useState({});
+  const [darkMode, setDarkMode] = useState(() => {
+    // Retrieve the dark mode preference from local storage or default to false
+    const savedMode = localStorage.getItem("darkMode");
+    return savedMode ? JSON.parse(savedMode) : false;
+  });
 
+  useEffect(() => {
+    // Save dark mode preference to local storage whenever it changes
+    localStorage.setItem("darkMode", JSON.stringify(darkMode));
+  }, [darkMode]);
+
+  const toggleDarkMode = () => {
+    setDarkMode((prevMode) => !prevMode);
+  };
   const onConnect = useCallback(
-    (params) => setEdges((eds) => addEdge(params, eds)),
+    (params) => {
+      console.log("Connection parameters:", params);
+      setEdges((eds) => addEdge(params, eds));
+    },
     [setEdges]
   );
 
@@ -98,7 +85,6 @@ const DnDFlow = () => {
   const onDrop = useCallback(
     (event) => {
       event.preventDefault();
-
       const type = event.dataTransfer.getData("application/reactflow");
       const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
 
@@ -123,18 +109,14 @@ const DnDFlow = () => {
     [screenToFlowPosition, setNodes]
   );
 
-  const onImageUpload = useCallback(
-    (event, nodeId) => {
-      const file = event.target.files[0];
-      const reader = new FileReader();
-      reader.onload = () => {
-        const newImages = { ...uploadedImages, [nodeId]: reader.result };
-        setUploadedImages(newImages);
-      };
-      reader.readAsDataURL(file);
-    },
-    [uploadedImages]
-  );
+  const onImageUpload = useCallback((event, nodeId) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      setUploadedImages((prev) => ({ ...prev, [nodeId]: reader.result }));
+    };
+    reader.readAsDataURL(file);
+  }, []);
 
   const onDeleteNode = useCallback(
     (id) => {
@@ -156,27 +138,37 @@ const DnDFlow = () => {
 
   return (
     <>
-      <Header />
-      <div className="dndflow flex flex-col">
-        <div className="reactflow-wrapper" ref={reactFlowWrapper}>
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            onDrop={onDrop}
-            onDragOver={onDragOver}
-            fitView
-            nodeTypes={nodeTypes}
-          >
-            <Background color="#FFFFF" variant={BackgroundVariant.Dots} />
-            <Controls position="bottom-right" />
-          </ReactFlow>
+      <div className={` ${darkMode ? "dark" : ""}`}>
+        <Header />
+        <div className={`dndflow flex flex-col`}>
+          <div className="reactflow-wrapper" ref={reactFlowWrapper}>
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              onDrop={onDrop}
+              onDragOver={onDragOver}
+              fitView
+              nodeTypes={nodeTypes}
+            >
+              <Background
+                color="#FFFFF"
+                variant={BackgroundVariant.Dots}
+                className="dark:bg-gray-800"
+              />
+              <Controls position="bottom-right" />
+            </ReactFlow>
+          </div>
+          <SideBar
+            blocks={blocks}
+            toggleDarkMode={toggleDarkMode}
+            darkMode={darkMode}
+          />
         </div>
-        <SideBar blocks={blocks} />
+        <Footer />
       </div>
-      <Footer />
     </>
   );
 };

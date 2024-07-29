@@ -7,8 +7,9 @@ import { BiMenu, BiCog } from "react-icons/bi";
 import EditingBlocks from "./EditingBlocks";
 import { ImInfo } from "react-icons/im";
 import { BsInfoSquare } from "react-icons/bs";
+import { FaMoon, FaSun } from "react-icons/fa";
 
-export default function SideBar({ blocks }) {
+export default function SideBar({ blocks, toggleDarkMode, darkMode }) {
   const [isOpen, setIsOpen] = useState(true);
 
   const toggleSidebar = () => {
@@ -17,7 +18,7 @@ export default function SideBar({ blocks }) {
 
   return (
     <aside
-      className={`fixed flex flex-col justify-between top-0 left-0 h-full bg-neutral-50/90 border-r-[1px] p-4 transition-all duration-300 ease-in-out ${
+      className={`fixed flex flex-col justify-between top-0 left-0 h-full bg-neutral-50 dark:bg-gray-900 border-r-[1px] p-4 transition-all duration-300 ease-in-out ${
         isOpen ? "w-72" : "w-20"
       }`}
     >
@@ -37,7 +38,11 @@ export default function SideBar({ blocks }) {
             alt="Devino's Logo"
             className="w-10 h-10 cursor-pointer"
           />
-          <span className={`text-xl font-bold ${isOpen ? "block" : "hidden"}`}>
+          <span
+            className={`text-base font-bold ${
+              isOpen ? "block" : "hidden"
+            } text-black dark:text-white`}
+          >
             Devino
           </span>
           <div
@@ -46,14 +51,21 @@ export default function SideBar({ blocks }) {
             }`}
           ></div>
           {/* Menu */}
-          <button className="relative w-8 h-8 flex items-center justify-center bg-transparent text-black rounded-lg border-[1px] border-neutral-500 hover:bg-black/5">
+          <button className="relative w-8 h-8 flex items-center justify-center bg-transparent text-black dark:text-white rounded-lg border-[1px] border-neutral-500 dark:border-gray-600 hover:bg-black/5">
             <BiMenu size={24} />
             <span className="tooltip-text">Menu</span>
           </button>
         </div>
+        <button
+          className="relative w-8 h-8 flex items-center justify-center bg-transparent text-black dark:text-white rounded-lg border-[1px] border-neutral-500 dark:border-gray-600 hover:bg-black/5"
+          onClick={toggleDarkMode}
+        >
+          {darkMode ? <FaSun size={18} /> : <FaMoon size={18} />}
+          <span className="tooltip-text">Dark/Light mode</span>
+        </button>
         {/* SideBar toggle */}
         <button
-          className="relative w-8 h-8 flex items-center justify-center bg-transparent text-black rounded-lg border-[1px] border-neutral-500 hover:bg-black/5"
+          className="relative w-8 h-8 flex items-center justify-center bg-transparent text-black dark:text-white rounded-lg border-[1px] border-neutral-500 dark:border-gray-600 hover:bg-black/5"
           onClick={toggleSidebar}
         >
           {isOpen ? (
@@ -69,7 +81,7 @@ export default function SideBar({ blocks }) {
       {/* Editing Blocks Section */}
       <section className={`relative flex-1 ${isOpen ? "block" : "hidden"}`}>
         <EditingBlocks blocks={blocks} />
-        <div className="flex items-center gap-2 py-2 px-4 mt-6 text-black bg-neutral-100 rounded-lg border-[1px] border-dashed  border-black">
+        <div className="flex items-center gap-2 py-2 px-4 mt-6 text-black dark:text-white bg-neutral-100 dark:bg-gray-800 rounded-lg border-[1px] border-dashed border-black dark:border-gray-600">
           <ImInfo size={26} className="animate-pulse" />
           <span className="text-xs font-semibold px-4">
             You can drag these nodes to the pane on the right.
@@ -82,20 +94,20 @@ export default function SideBar({ blocks }) {
           isOpen ? "flex-row" : "flex-col gap-4"
         }`}
       >
-        <button className="relative w-8 h-8 flex items-center justify-center bg-transparent text-black rounded-lg border-[1px] border-neutral-500 hover:bg-black/5 cursor-pointer">
+        <button className="relative w-8 h-8 flex items-center justify-center bg-transparent text-black dark:text-white rounded-lg border-[1px] border-neutral-500 dark:border-gray-600 hover:bg-black/5 cursor-pointer">
           <BiCog className="w-5 h-5" />
           <span className="tooltip-text">Settings</span>
         </button>
         {/* Terms and Conditions */}
         <a
           href="/"
-          className={`text-xs text-black font-semibold underline ${
+          className={`text-xs text-black dark:text-white font-semibold underline ${
             isOpen ? "block" : "hidden"
           }`}
         >
           Terms and Conditions
         </a>
-        <button className="relative w-8 h-8 flex items-center justify-center bg-transparent text-black rounded-lg border-[1px] border-neutral-500 hover:bg-black/5 cursor-pointer">
+        <button className="relative w-8 h-8 flex items-center justify-center bg-transparent text-black dark:text-white rounded-lg border-[1px] border-neutral-500 dark:border-gray-600 hover:bg-black/5 cursor-pointer">
           <BsInfoSquare className="w-5 h-5" />
           <span className="tooltip-text">Inquiry</span>
         </button>
